@@ -1,0 +1,279 @@
+---
+title: "BDHS EDA"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+```
+
+
+```{r}
+BDHS_data <- read.csv("./BDHS_data_1.csv")
+gen <- 1900 + floor(BDHS_data_test$dateOfBirth / 12) 
+gen <- round(gen - 5, -1)
+BDHS_data_test <- cbind(BDHS_data_test, gen)
+df <- BDHS_data_test[BDHS_data_test$delta1 == 1, ]
+```
+
+**Age at First Birth (overall)** <br>
+```{r}
+summary(df$ageAtFirstBirth)
+sd(df$ageAtFirstBirth)
+```
+
+```{r}
+boxplot(df$ageAtFirstBirth,
+        main = "Boxplot of Overall Age at First Birth")
+```
+
+**Number of Children (overall)** <br>
+```{r}
+summary(df$birthCount)
+sd(df$birthCount)
+```
+
+```{r}
+boxplot(df$birthCount,
+        main = "Boxplot of Overall Number of Children")
+```
+
+**Age at First Birth grouped by division** <br>
+```{r}
+df %>% group_by(division) %>%
+  summarise(min = min(ageAtFirstBirth),
+            firstQu = quantile(ageAtFirstBirth, 0.25),
+            average =  mean(ageAtFirstBirth),
+            median = median(ageAtFirstBirth),
+            thirdQu = quantile(ageAtFirstBirth, 0.75),
+            max = max(ageAtFirstBirth),
+            std = sd(ageAtFirstBirth))
+```
+
+**Number of Children grouped by division** <br>
+```{r}
+df %>% group_by(division) %>%
+  summarise(min = min(birthCount),
+            firstQu = quantile(birthCount, 0.25),
+            average =  mean(birthCount),
+            median = median(birthCount),
+            thirdQu = quantile(birthCount, 0.75),
+            max = max(birthCount),
+            std = sd(birthCount))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+boxplot(df$birthCount ~ df$division,
+        main = "Number of Children")
+boxplot(df$ageAtFirstBirth ~ df$division,
+        main = "Age at First Birth")
+```
+This result is the same with Hsieh. <br>
+
+**Age at First Birth grouped by generation** <br>
+```{r}
+df %>% group_by(gen) %>%
+  summarise(min = min(ageAtFirstBirth),
+            firstQu = quantile(ageAtFirstBirth, 0.25),
+            average =  mean(ageAtFirstBirth),
+            median = median(ageAtFirstBirth),
+            thirdQu = quantile(ageAtFirstBirth, 0.75),
+            max = max(ageAtFirstBirth),
+            std = sd(ageAtFirstBirth))
+```
+
+**Number of Children grouped by generation** <br>
+```{r}
+df %>% group_by(gen) %>%
+  summarise(min = min(birthCount),
+            firstQu = quantile(birthCount, 0.25),
+            average =  mean(birthCount),
+            median = median(birthCount),
+            thirdQu = quantile(birthCount, 0.75),
+            max = max(birthCount),
+            std = sd(birthCount))
+```
+
+```{r}
+par(mfrow = c(1, 2))
+boxplot(df$birthCount ~ df$gen,
+        main = "Number of Children")
+boxplot(df$ageAtFirstBirth ~ df$gen,
+        main = "Age at First Birth")
+```
+
+```{r}
+par(mfrow = c(1, 2))
+boxplot(df$ageAtFirstBirth ~ df$division,
+        main = "Age at First Birth by division")
+boxplot(df$ageAtFirstBirth ~ df$gen,
+        main = "Age at First Birth by generation")
+```
+
+```{r}
+par(mfrow = c(1, 2))
+boxplot(df$birthCount ~ df$division,
+        main = "Number of Children by division")
+boxplot(df$birthCount ~ df$gen,
+        main = "Number of Children by generation")
+```
+
+The younger generation is truncated from the dataset.
+
+**Boundary Condition** <br>
+```{r}
+min(df$Y1)
+min(df$C)
+max(df$Y1)
+max(df$C)
+```
+
+```{r}
+min(BDHS_data_test$Y1)
+min(BDHS_data_test$C)
+max(BDHS_data_test$Y1)
+max(BDHS_data_test$C)
+```
+
+
+```{r}
+df %>% group_by(gen) %>%
+  summarise(a_y1 = min(Y1),
+            a_C = min(C),
+            b_y1 = max(Y1),
+            b_C = max(C))
+```
+
+```{r}
+df %>% group_by(division) %>%
+  summarise(a_y1 = min(Y1),
+            a_C = min(C),
+            b_y1 = max(Y1),
+            b_C = max(C))
+```
+
+**truncation probability (overall)** <br>
+```{r}
+trunc_prob_func(df$Y1, df$C, unique(df$m))
+```
+
+**truncation probability (grouped by division)** <br>
+```{r}
+df %>%
+  group_by(division) %>%
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+```
+
+**truncation probability (grouped by generation)** <br>
+```{r}
+df %>%
+  group_by(gen) %>%
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+```
+
+
+```{r}
+## division 1
+df %>% 
+  filter(division == 1) %>%
+  group_by(gen) %>% 
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+
+## division 2
+df %>% 
+  filter(division == 2) %>%
+  group_by(gen) %>% 
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+
+## division 3
+df %>% 
+  filter(division == 3) %>%
+  group_by(gen) %>% 
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+
+## division 4
+df %>% 
+  filter(division == 4) %>%
+  group_by(gen) %>% 
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+
+## division 5
+df %>% 
+  filter(division == 5) %>%
+  group_by(gen) %>% 
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+
+## division 6
+df %>% 
+  filter(division == 6) %>%
+  group_by(gen) %>% 
+  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
+
+```
+
+```{r}
+nrow(df[df$gen == 1990, ])
+```
+
+**Censoring rate (overall)** <br>
+```{r}
+mean(df$delta2 == 0)
+```
+
+**Censoring rate grouped by division** <br>
+```{r}
+df %>% group_by(division) %>%
+  summarise(censoring.rate = mean(delta2 == 0))
+```
+
+**Censoring rate grouped by generation** <br>
+```{r}
+df %>% group_by(gen) %>%
+  summarise(censoring.rate = mean(delta2 == 0))
+```
+
+```{r}
+## division 1
+df %>% 
+  filter(division == 1) %>%
+  group_by(gen) %>% 
+  summarise(censoring.rate = mean(delta2 == 0))
+
+## division 2
+df %>% 
+  filter(division == 2) %>%
+  group_by(gen) %>% 
+  summarise(censoring.rate = mean(delta2 == 0))
+
+## division 3
+df %>% 
+  filter(division == 3) %>%
+  group_by(gen) %>% 
+  summarise(censoring.rate = mean(delta2 == 0))
+
+## division 4
+df %>% 
+  filter(division == 4) %>%
+  group_by(gen) %>% 
+  summarise(censoring.rate = mean(delta2 == 0))
+
+## division 5
+df %>% 
+  filter(division == 5) %>%
+  group_by(gen) %>% 
+  summarise(censoring.rate = mean(delta2 == 0))
+
+## division 6
+df %>% 
+  filter(division == 6) %>%
+  group_by(gen) %>% 
+  summarise(censoring.rate = mean(delta2 == 0))
+
+```
+
+
