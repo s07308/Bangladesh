@@ -128,10 +128,34 @@ S_Y2_func <- function(Y1, Y2, delta, C, pi.hat, m = 100) {
     surv.est[i + 1] <- surv.est[i] * (1 - d / (risk.set.1 + risk.set.2 - risk.set.3))
   }
   
-  # return(stepfun(jump.point, surv.est))
   return(list(jumpPoint = jump.point, SurvEst = surv.est))
 }
 ##
+
+Sy2_func <- function(Y1, Y2, delta2, C, pi.hat) {
+  Sy1 <- lynden(X = Y1, V = C, boot = FALSE)
+  Sc <- lynden(X = C, U = Y1, boot = FALSE)
+  
+  Sy1_func <- stepfun(x = Sy1$time, c(Sy1$survival, 0))
+  Sc_func <- stepfun(x = Sc$time, c(Sc$survival, 0))
+  n <- length(Y1)
+  
+  jump.point <- sort(Y2[delta2 == 1])
+  surv.est <- numeric(length(jump.point) + 1)
+  surv.est[1] <- 1
+  
+  for(i in 1:length(jump.point)) {
+    d <- pi.hat * sum(Y2 == jump.point[i] & delta2 == 1)
+    risk.set.1 <- pi.hat * sum(Y2 >= jump.point[i])
+    risk.set.2 <- n * Sy1_func(jump.point[i]) * Sc_func(jump.point[i])
+    risk.set.3 <- pi.hat * sum(Y1 > jump.point[i])
+    
+    surv.est[i + 1] <- surv.est[i] * (1 - d / (risk.set.1 + risk.set.2 - risk.set.3))
+  }
+  
+  return(list(time = jump.point, survival = surv.est))
+}
+
 
 ## estimate the joint distribution of T1 and T2
 H2_func <- function(t1, t2, df, pi.hat, S_C_func) {

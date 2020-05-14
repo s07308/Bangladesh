@@ -156,69 +156,6 @@ df %>% group_by(division) %>%
             b_C = max(C))
 ```
 
-**truncation probability (overall)** <br>
-```{r}
-trunc_prob_func(df$Y1, df$C, unique(df$m))
-```
-
-**truncation probability (grouped by division)** <br>
-```{r}
-df %>%
-  group_by(division) %>%
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-```
-
-**truncation probability (grouped by generation)** <br>
-```{r}
-df %>%
-  group_by(gen) %>%
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-```
-
-
-```{r}
-## division 1
-df %>% 
-  filter(division == 1) %>%
-  group_by(gen) %>% 
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-
-## division 2
-df %>% 
-  filter(division == 2) %>%
-  group_by(gen) %>% 
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-
-## division 3
-df %>% 
-  filter(division == 3) %>%
-  group_by(gen) %>% 
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-
-## division 4
-df %>% 
-  filter(division == 4) %>%
-  group_by(gen) %>% 
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-
-## division 5
-df %>% 
-  filter(division == 5) %>%
-  group_by(gen) %>% 
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-
-## division 6
-df %>% 
-  filter(division == 6) %>%
-  group_by(gen) %>% 
-  summarise(pi.hat = trunc_prob_func(Y1, C, unique(m)))
-
-```
-
-```{r}
-nrow(df[df$gen == 1990, ])
-```
-
 **Censoring rate (overall)** <br>
 ```{r}
 mean(df$delta2 == 0)
@@ -382,7 +319,8 @@ Fy1_func <- stepfun(x = Sy1$time,
                     y = c(Sy1$cumulative.df, 1),
                     right = TRUE,
                     f = 1)
-trunc.prob<- sum(Fy1_func(Sc$time) * mass.c)
+trunc.prob <- sum(Fy1_func(Sc$time) * mass.c)
+trunc.prob
 ```
 
 ```{r}
@@ -440,6 +378,12 @@ for(i in 1:6) {
 }
 
 trunc.prob.div.gen
+```
+
+**Marginal distribution of Y2**
+```{r}
+Sy2 <- Sy2_func(df$Y1, df$Y2, df$delta2, df$C, trunc.prob)
+plot(stepfun(Sy2$time, Sy2$survival))
 ```
 
 
