@@ -277,8 +277,98 @@ df %>%
 
 **Marginal distribution of Y1** <br>
 ```{r}
-Sy1 <- lynden(X = df$Y1, V = df$C, display.S = FALSE)
+Sy1 <- lynden(X = df$Y1, V = df$C, boot = FALSE)
 plot(Sy1$time, Sy1$survival, type = "l")
 ```
 
+```{r}
+for(div in 1:6) {
+  df.div <- df[df$division == div, ]
+  Sy1.div <- lynden(X = df.div$Y1, V = df.div$C, boot = FALSE)
+  
+  if(div == 1) {
+    plot(Sy1$time, Sy1$survival, type = "l", xlim = c(0, 200))
+    points(Sy1.div$time, Sy1.div$survival, type = "l", lty = div + 1, col = div + 1)
+  } else {
+    points(Sy1.div$time, Sy1.div$survival, type = "l", lty = div + 1, col = div + 1)
+  }
+}
 
+legend("topright",
+       c("Overall", "Barisal", "Chittagong", "Dhaka", "Khuna", "Rajshahi", "Sylhet"),
+       lty = 1:7,
+       col = 1:7)
+```
+
+```{r}
+gen <- c(1950, 1960, 1970, 1980)
+
+for(i in 1:4) {
+  df.gen <- df[df$gen == gen[i], ]
+  Sy1.gen <- lynden(X = df.gen$Y1, V = df.gen$C, boot = FALSE)
+  
+  if(i == 1) {
+    plot(Sy1$time, Sy1$survival, type = "l", xlim = c(0, 200))
+    points(Sy1.gen$time, Sy1.gen$survival, type = "l", lty = i + 1, col = i + 1)
+  } else {
+    points(Sy1.gen$time, Sy1.gen$survival, type = "l", lty = i + 1, col = i + 1)
+  }
+}
+
+legend("topright",
+       c("Overall", gen),
+       lty = 1:5,
+       col = 1:5)
+```
+
+```{r}
+gen <- c(1950, 1960, 1970, 1980)
+div <- c("Barisal", "Chittagong", "Dhaka", "Khuna", "Rajshahi", "Sylhet")
+
+for(j in 1:6) {
+  for(i in 1:4) {
+    df.div.gen <- df[df$gen == gen[i] & df$division == j, ]
+    Sy1.div.gen <- lynden(X = df.div.gen$Y1, V = df.div.gen$C, boot = FALSE)
+    
+    if(i == 1) {
+      plot(Sy1.div.gen$time,
+           Sy1.div.gen$survival,
+           type = "l",
+           lty = i + 1,
+           col = i + 1,
+           xlim = c(0, 200),
+           main = paste("Survival of Y1 in", div[j]))
+    } else {
+      points(Sy1.div.gen$time, Sy1.div.gen$survival, type = "l", lty = i + 1, col = i + 1)
+    }
+  }
+  
+  legend("topright", legend = gen, lty = 2:5, col = 2:5)
+}
+```
+
+```{r}
+gen <- c(1950, 1960, 1970, 1980)
+div <- c("Barisal", "Chittagong", "Dhaka", "Khuna", "Rajshahi", "Sylhet")
+
+for(i in 1:4) {
+  for(j in 1:6) {
+    df.gen.div <- df[df$gen == gen[i] & df$division == j, ]
+    Sy1.gen.div <- lynden(X = df.gen.div$Y1, V = df.gen.div$C, boot = FALSE)
+    
+    if(j == 1) {
+      plot(Sy1.gen.div$time,
+           Sy1.gen.div$survival,
+           type = "l",
+           lty = j + 1,
+           col = j + 1,
+           xlim = c(0, 200),
+           main = paste("Survival of Y1 in", gen[i]))
+    } else {
+      points(Sy1.gen.div$time, Sy1.gen.div$survival, type = "l", lty = j + 1, col = j + 1)
+    }
+  }
+  
+  legend("topright", legend = div, lty = 2:7, col = 2:7)
+}
+```
