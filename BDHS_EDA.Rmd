@@ -9,15 +9,15 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(dplyr)
+library(DTDA)
 ```
-
 
 ```{r}
 BDHS_data <- read.csv("./BDHS_data_1.csv")
-gen <- 1900 + floor(BDHS_data_test$dateOfBirth / 12) 
+gen <- 1900 + floor(BDHS_data$dateOfBirth / 12) 
 gen <- round(gen - 5, -1)
-BDHS_data_test <- cbind(BDHS_data_test, gen)
-df <- BDHS_data_test[BDHS_data_test$delta1 == 1, ]
+BDHS_data <- cbind(BDHS_data, gen)
+df <- BDHS_data[BDHS_data$delta1 == 1, ]
 ```
 
 **Age at First Birth (overall)** <br>
@@ -73,7 +73,7 @@ boxplot(df$birthCount ~ df$division,
 boxplot(df$ageAtFirstBirth ~ df$division,
         main = "Age at First Birth")
 ```
-This result is the same with Hsieh. <br>
+This result is the same with Hsieh's Thesis. <br>
 
 **Age at First Birth grouped by generation** <br>
 ```{r}
@@ -122,7 +122,6 @@ boxplot(df$birthCount ~ df$division,
 boxplot(df$birthCount ~ df$gen,
         main = "Number of Children by generation")
 ```
-
 The younger generation is truncated from the dataset.
 
 **Boundary Condition** <br>
@@ -134,10 +133,10 @@ max(df$C)
 ```
 
 ```{r}
-min(BDHS_data_test$Y1)
-min(BDHS_data_test$C)
-max(BDHS_data_test$Y1)
-max(BDHS_data_test$C)
+min(BDHS_data$Y1)
+min(BDHS_data$C)
+max(BDHS_data$Y1)
+max(BDHS_data$C)
 ```
 
 
@@ -274,6 +273,12 @@ df %>%
   group_by(gen) %>% 
   summarise(censoring.rate = mean(delta2 == 0))
 
+```
+
+**Marginal distribution of Y1** <br>
+```{r}
+Sy1 <- lynden(X = df$Y1, V = df$C, display.S = FALSE)
+plot(Sy1$time, Sy1$survival, type = "l")
 ```
 
 
