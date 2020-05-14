@@ -372,3 +372,80 @@ for(i in 1:4) {
   legend("topright", legend = div, lty = 2:7, col = 2:7)
 }
 ```
+
+
+**Truncation Probability** <br>
+```{r}
+Sc <- lynden(X = df$C, U = df$Y1, boot = FALSE)
+mass.c <- c(Sc$cumulative.df[1], diff(Sc$cumulative.df))
+Fy1_func <- stepfun(x = Sy1$time,
+                    y = c(Sy1$cumulative.df, 1),
+                    right = TRUE,
+                    f = 1)
+trunc.prob<- sum(Fy1_func(Sc$time) * mass.c)
+```
+
+```{r}
+trunc.prob.div <- numeric(length = 6)
+for(i in 1:6) {
+  df.div <- df[df$division == i, ]
+  Sy1.div <- lynden(X = df.div$Y1, V = df.div$C, boot = FALSE)
+  Sc.div <- lynden(X = df.div$C, U = df.div$Y1, boot = FALSE)
+  mass.c.div <- c(Sc.div$cumulative.df[1], diff(Sc.div$cumulative.df))
+  Fy1.div_func <- stepfun(x = Sy1.div$time,
+                          y = c(Sy1.div$cumulative.df, 1),
+                          right = TRUE,
+                          f = 1)
+  trunc.prob.div[i] <- sum(Fy1.div_func(Sc.div$time) * mass.c.div)
+}
+
+trunc.prob.div
+```
+
+```{r}
+trunc.prob.gen <- numeric(length = 4)
+gen <- c(1950, 1960, 1970, 1980)
+
+for(i in 1:4) {
+  df.gen <- df[df$gen == gen[i], ]
+  Sy1.gen <- lynden(X = df.gen$Y1, V = df.gen$C, boot = FALSE)
+  Sc.gen <- lynden(X = df.gen$C, U = df.gen$Y1, boot = FALSE)
+  mass.c.gen <- c(Sc.gen$cumulative.df[1], diff(Sc.gen$cumulative.df))
+  Fy1.gen_func <- stepfun(x = Sy1.gen$time,
+                          y = c(Sy1.gen$cumulative.df, 1),
+                          right = TRUE,
+                          f = 1)
+  trunc.prob.gen[i] <- sum(Fy1.gen_func(Sc.gen$time) * mass.c.gen)
+}
+
+trunc.prob.gen
+```
+
+```{r}
+trunc.prob.div.gen <- matrix(nrow = 6, ncol = 4)
+gen <- c(1950, 1960, 1970, 1980)
+
+for(i in 1:6) {
+  for(j in 1:4) {
+    df.div.gen <- df[df$gen == gen[j] & df$division == i, ]
+    Sy1.div.gen <- lynden(X = df.div.gen$Y1, V = df.div.gen$C, boot = FALSE)
+    Sc.div.gen <- lynden(X = df.div.gen$C, U = df.div.gen$Y1, boot = FALSE)
+    mass.c.div.gen <- c(Sc.div.gen$cumulative.df[1], diff(Sc.div.gen$cumulative.df))
+    Fy1.div.gen_func <- stepfun(x = Sy1.div.gen$time,
+                                y = c(Sy1.div.gen$cumulative.df, 1),
+                                right = TRUE,
+                                f = 1)
+    trunc.prob.div.gen[i, j] <- sum(Fy1.div.gen_func(Sc.div.gen$time) * mass.c.div.gen)
+  }
+}
+
+trunc.prob.div.gen
+```
+
+
+
+
+
+
+
+
